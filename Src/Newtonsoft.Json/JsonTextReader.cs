@@ -58,6 +58,12 @@ namespace Newtonsoft.Json
         private const char UnicodeReplacementChar = '\uFFFD';
         private const int MaximumJavascriptIntegerCharacterLength = 380;
 
+#if DEBUG
+        internal int LargeBufferLength { get; set; } = int.MaxValue / 2;
+#else
+        private const int LargeBufferLength = int.MaxValue / 2;
+#endif
+
         private readonly TextReader _reader;
         private char[] _chars;
         private int _charsUsed;
@@ -90,10 +96,13 @@ namespace Newtonsoft.Json
         }
 
 #if DEBUG
-        internal void SetCharBuffer(char[] chars)
+        internal char[] CharBuffer
         {
-            _chars = chars;
+            get => _chars;
+            set => _chars = value;
         }
+
+        internal int CharPos => _charPos;
 #endif
 
         /// <summary>
@@ -101,7 +110,7 @@ namespace Newtonsoft.Json
         /// </summary>
         public IArrayPool<char> ArrayPool
         {
-            get { return _arrayPool; }
+            get => _arrayPool;
             set
             {
                 if (value == null)
@@ -235,10 +244,11 @@ namespace Newtonsoft.Json
 
         private void ShiftBufferIfNeeded()
         {
-            // once in the last 10% of the buffer shift the remaining content to the start to avoid
-            // unnecessarily increasing the buffer size when reading numbers/strings
+            // once in the last 10% of the buffer, or buffer is already very large then
+            // shift the remaining content to the start to avoid unnecessarily increasing
+            // the buffer size when reading numbers/strings
             int length = _chars.Length;
-            if (length - _charPos <= length * 0.1)
+            if (length - _charPos <= length * 0.1 || length >= LargeBufferLength)
             {
                 int count = _charsUsed - _charPos;
                 if (count > 0)
@@ -265,8 +275,12 @@ namespace Newtonsoft.Json
             {
                 if (append)
                 {
+                    int doubledArrayLength = _chars.Length * 2;
+
                     // copy to new array either double the size of the current or big enough to fit required content
-                    int newArrayLength = Math.Max(_chars.Length * 2, _charsUsed + charsRequired + 1);
+                    int newArrayLength = Math.Max(
+                        doubledArrayLength < 0 ? int.MaxValue : doubledArrayLength, // handle overflow
+                        _charsUsed + charsRequired + 1);
 
                     // increase the size of the buffer
                     char[] dst = BufferUtils.RentBuffer(_arrayPool, newArrayLength);
@@ -1947,8 +1961,7 @@ namespace Newtonsoft.Json
                 }
                 else
                 {
-                    double value;
-                    if (!double.TryParse(number, NumberStyles.Float, CultureInfo.InvariantCulture, out value))
+                    if (!double.TryParse(number, NumberStyles.Float, CultureInfo.InvariantCulture, out _))
                     {
                         throw ThrowReaderError("Input string '{0}' is not a valid number.".FormatWith(CultureInfo.InvariantCulture, _stringReference.ToString()));
                     }
@@ -2566,9 +2579,6 @@ namespace Newtonsoft.Json
         /// <value>
         /// The current line position or 0 if no line information is available (for example, <see cref="JsonTextReader.HasLineInfo"/> returns <c>false</c>).
         /// </value>
-        public int LinePosition
-        {
-            get { return _charPos - _lineStartPos; }
-        }
+        public int LinePosition => _charPos - _lineStartPos;
     }
 }

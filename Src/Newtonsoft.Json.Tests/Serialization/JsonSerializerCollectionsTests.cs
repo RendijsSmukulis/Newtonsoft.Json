@@ -61,6 +61,20 @@ namespace Newtonsoft.Json.Tests.Serialization
     [TestFixture]
     public class JsonSerializerCollectionsTests : TestFixtureBase
     {
+#if !(NET35 || NET20 || PORTABLE || PORTABLE40) || NETSTANDARD2_0
+        [Test]
+        public void DeserializeConcurrentDictionaryWithNullValue()
+        {
+            const string key = "id";
+            
+            var jsonValue = $"{{\"{key}\":null}}";
+
+            var deserializedObject = JsonConvert.DeserializeObject<ConcurrentDictionary<string, string>>(jsonValue);
+
+            Assert.IsNull(deserializedObject[key]);
+        }
+#endif
+
 #if !(NET20 || NET35)
         [Test]
         public void SerializeConcurrentQueue()
@@ -1817,6 +1831,41 @@ namespace Newtonsoft.Json.Tests.Serialization
             Assert.AreEqual("444-1212", newName.pNumbers[1].phoneNumber);
         }
 
+        [TestFixture]
+        public class MultipleDefinedPropertySerialization
+        {
+            [Test]
+            public void SerializePropertyDefinedInMultipleInterfaces()
+            {
+                const string propertyValue = "value";
+
+                var list = new List<ITestInterface> { new TestClass { Property = propertyValue } };
+
+                var json = JsonConvert.SerializeObject(list);
+
+                StringAssert.AreEqual($"[{{\"Property\":\"{propertyValue}\"}}]", json);
+            }
+
+            public interface IFirstInterface
+            {
+                string Property { get; set; }
+            }
+
+            public interface ISecondInterface
+            {
+                string Property { get; set; }
+            }
+
+            public interface ITestInterface : IFirstInterface, ISecondInterface
+            {
+            }
+
+            public class TestClass : ITestInterface
+            {
+                public string Property { get; set; }
+            }
+        }
+
         [Test]
         public void CustomCollectionSerialization()
         {
@@ -2046,6 +2095,50 @@ namespace Newtonsoft.Json.Tests.Serialization
             Assert.AreEqual("apple", deserialized[0]);
             Assert.AreEqual("monkey", deserialized[1]);
             Assert.AreEqual("goose", deserialized[2]);
+        }
+
+#if !(PORTABLE || PORTABLE40)
+        [Test]
+        public void DeserializeCultureInfoKey()
+        {
+            string json = @"{ ""en-US"": ""Hi"", ""sv-SE"": ""Hej"" }";
+
+            Dictionary<CultureInfo, string> values = JsonConvert.DeserializeObject<Dictionary<CultureInfo, string>>(json);
+            Assert.AreEqual(2, values.Count);
+        }
+#endif
+
+        [Test]
+        public void DeserializeConstructorWithReadonlyArrayProperty()
+        {
+            string json = @"{""Endpoint"":""http://localhost"",""Name"":""account1"",""Dimensions"":[{""Key"":""Endpoint"",""Value"":""http://localhost""},{""Key"":""Name"",""Value"":""account1""}]}";
+
+            AccountInfo values = JsonConvert.DeserializeObject<AccountInfo>(json);
+            Assert.AreEqual("http://localhost", values.Endpoint);
+            Assert.AreEqual("account1", values.Name);
+            Assert.AreEqual(2, values.Dimensions.Length);
+        }
+
+        public sealed class AccountInfo
+        {
+            private KeyValuePair<string, string>[] metricDimensions;
+
+            public AccountInfo(string endpoint, string name)
+            {
+                this.Endpoint = endpoint;
+                this.Name = name;
+            }
+
+            public string Endpoint { get; }
+
+            public string Name { get; }
+
+            public KeyValuePair<string, string>[] Dimensions =>
+                this.metricDimensions ?? (this.metricDimensions = new KeyValuePair<string, string>[]
+                {
+                    new KeyValuePair<string, string>("Endpoint", this.Endpoint.ToString()),
+                    new KeyValuePair<string, string>("Name", this.Name)
+                });
         }
 
         public class MyClass : IList<string>

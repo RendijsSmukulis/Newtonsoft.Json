@@ -971,6 +971,11 @@ namespace Newtonsoft.Json.Tests.Serialization
         {
             JsonSerializer serializer = new JsonSerializer();
 
+#pragma warning disable CS0618 // Type or member is obsolete
+            Assert.IsNotNull(serializer.Binder);
+#pragma warning restore CS0618 // Type or member is obsolete
+            Assert.IsNotNull(serializer.SerializationBinder);
+
             DefaultSerializationBinder customBinder = new DefaultSerializationBinder();
 #pragma warning disable CS0618 // Type or member is obsolete
             serializer.Binder = customBinder;
@@ -1090,6 +1095,11 @@ namespace Newtonsoft.Json.Tests.Serialization
         {
             JsonSerializerSettings settings = new JsonSerializerSettings();
 
+#pragma warning disable CS0618 // Type or member is obsolete
+            Assert.IsNull(settings.Binder);
+#pragma warning restore CS0618 // Type or member is obsolete
+            Assert.IsNull(settings.SerializationBinder);
+
             DefaultSerializationBinder customBinder = new DefaultSerializationBinder();
 #pragma warning disable CS0618 // Type or member is obsolete
             settings.Binder = customBinder;
@@ -1204,6 +1214,11 @@ namespace Newtonsoft.Json.Tests.Serialization
         public void JsonSerializerProxyProperties()
         {
             JsonSerializerProxy serializerProxy = new JsonSerializerProxy(new JsonSerializerInternalReader(new JsonSerializer()));
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            Assert.IsNotNull(serializerProxy.Binder);
+#pragma warning restore CS0618 // Type or member is obsolete
+            Assert.IsNotNull(serializerProxy.SerializationBinder);
 
             DefaultSerializationBinder customBinder = new DefaultSerializationBinder();
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -2871,6 +2886,7 @@ keyword such as type of business.""
             Assert.AreEqual(@"{""Details"":""Application started."",""LogDate"":new Date(1234656000000)}", javascriptJson);
         }
 
+        [Test]
         public void GenericListAndDictionaryInterfaceProperties()
         {
             GenericListAndDictionaryInterfaceProperties o = new GenericListAndDictionaryInterfaceProperties();
@@ -5266,6 +5282,24 @@ Path '', line 1, position 1.");
 }", json);
         }
 #endif
+
+        public class CustomClass
+        {
+#if !(NET20 || PORTABLE)
+            [Required]
+#endif
+            public System.Guid? clientId { get; set; }
+        }
+
+        [Test]
+        public void DeserializeStringIntoNullableGuid()
+        {
+            string json = @"{ 'clientId': 'bb2f3da7-bf79-4d14-9d54-0a1f7ff5f902' }";
+
+            CustomClass c = JsonConvert.DeserializeObject<CustomClass>(json);
+
+            Assert.AreEqual(new Guid("bb2f3da7-bf79-4d14-9d54-0a1f7ff5f902"), c.clientId);
+        }
 
 #if !(PORTABLE || DNXCORE50 || PORTABLE40) || NETSTANDARD2_0
         [Test]

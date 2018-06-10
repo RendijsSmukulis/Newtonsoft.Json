@@ -109,7 +109,7 @@ namespace Newtonsoft.Json.Serialization
         /// <value>The type created during deserialization.</value>
         public Type CreatedType
         {
-            get { return _createdType; }
+            get => _createdType;
             set
             {
                 _createdType = value;
@@ -238,7 +238,12 @@ namespace Newtonsoft.Json.Serialization
 
             UnderlyingType = underlyingType;
 
+            // resolve ByRef types
+            // typically comes from in and ref parameters on methods/ctors
+            underlyingType = ReflectionUtils.EnsureNotByRefType(underlyingType);
+
             IsNullable = ReflectionUtils.IsNullable(underlyingType);
+             
             NonNullableUnderlyingType = (IsNullable && ReflectionUtils.IsNullableType(underlyingType)) ? Nullable.GetUnderlyingType(underlyingType) : underlyingType;
 
             CreatedType = NonNullableUnderlyingType;

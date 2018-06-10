@@ -34,7 +34,6 @@ using System.IO;
 #if HAVE_BIG_INTEGER
 using System.Numerics;
 #endif
-using System.Text;
 using Newtonsoft.Json.Utilities;
 using System.Diagnostics;
 using System.Globalization;
@@ -164,8 +163,8 @@ namespace Newtonsoft.Json.Linq
         /// <value>The <see cref="JToken"/> that contains the next sibling token.</value>
         public JToken Next
         {
-            get { return _next; }
-            internal set { _next = value; }
+            get => _next;
+            internal set => _next = value;
         }
 
         /// <summary>
@@ -174,8 +173,8 @@ namespace Newtonsoft.Json.Linq
         /// <value>The <see cref="JToken"/> that contains the previous sibling token.</value>
         public JToken Previous
         {
-            get { return _previous; }
-            internal set { _previous = value; }
+            get => _previous;
+            internal set => _previous = value;
         }
 
         /// <summary>
@@ -319,8 +318,8 @@ namespace Newtonsoft.Json.Linq
         /// <value>The <see cref="JToken"/> with the specified key.</value>
         public virtual JToken this[object key]
         {
-            get { throw new InvalidOperationException("Cannot access child value on {0}.".FormatWith(CultureInfo.InvariantCulture, GetType())); }
-            set { throw new InvalidOperationException("Cannot set child value on {0}.".FormatWith(CultureInfo.InvariantCulture, GetType())); }
+            get => throw new InvalidOperationException("Cannot access child value on {0}.".FormatWith(CultureInfo.InvariantCulture, GetType()));
+            set => throw new InvalidOperationException("Cannot set child value on {0}.".FormatWith(CultureInfo.InvariantCulture, GetType()));
         }
 
         /// <summary>
@@ -341,19 +340,13 @@ namespace Newtonsoft.Json.Linq
         /// Get the first child token of this token.
         /// </summary>
         /// <value>A <see cref="JToken"/> containing the first child token of the <see cref="JToken"/>.</value>
-        public virtual JToken First
-        {
-            get { throw new InvalidOperationException("Cannot access child value on {0}.".FormatWith(CultureInfo.InvariantCulture, GetType())); }
-        }
+        public virtual JToken First => throw new InvalidOperationException("Cannot access child value on {0}.".FormatWith(CultureInfo.InvariantCulture, GetType()));
 
         /// <summary>
         /// Get the last child token of this token.
         /// </summary>
         /// <value>A <see cref="JToken"/> containing the last child token of the <see cref="JToken"/>.</value>
-        public virtual JToken Last
-        {
-            get { throw new InvalidOperationException("Cannot access child value on {0}.".FormatWith(CultureInfo.InvariantCulture, GetType())); }
-        }
+        public virtual JToken Last => throw new InvalidOperationException("Cannot access child value on {0}.".FormatWith(CultureInfo.InvariantCulture, GetType()));
 
         /// <summary>
         /// Returns a collection of the child tokens of this token, in document order.
@@ -455,9 +448,9 @@ namespace Newtonsoft.Json.Linq
                 throw new ArgumentNullException(nameof(value));
             }
 
-            if (value is JProperty)
+            if (value is JProperty property)
             {
-                value = ((JProperty)value).Value;
+                value = property.Value;
             }
 
             JValue v = value as JValue;
@@ -497,9 +490,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return Convert.ToBoolean((int)(BigInteger)v.Value);
+                return Convert.ToBoolean((int)integer);
             }
 #endif
 
@@ -520,16 +513,16 @@ namespace Newtonsoft.Json.Linq
                 throw new ArgumentException("Can not convert {0} to DateTimeOffset.".FormatWith(CultureInfo.InvariantCulture, GetType(value)));
             }
 
-            if (v.Value is DateTimeOffset)
+            if (v.Value is DateTimeOffset offset)
             {
-                return (DateTimeOffset)v.Value;
+                return offset;
             }
 
-            string s = v.Value as string;
-            if (s != null)
+            if (v.Value is string s)
             {
                 return DateTimeOffset.Parse(s, CultureInfo.InvariantCulture);
             }
+
             return new DateTimeOffset(Convert.ToDateTime(v.Value, CultureInfo.InvariantCulture));
         }
 #endif
@@ -553,9 +546,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return Convert.ToBoolean((int)(BigInteger)v.Value);
+                return Convert.ToBoolean((int)integer);
             }
 #endif
 
@@ -576,9 +569,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return (long)(BigInteger)v.Value;
+                return (long)integer;
             }
 #endif
 
@@ -604,9 +597,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_DATE_TIME_OFFSET
-            if (v.Value is DateTimeOffset)
+            if (v.Value is DateTimeOffset offset)
             {
-                return ((DateTimeOffset)v.Value).DateTime;
+                return offset.DateTime;
             }
 #endif
 
@@ -636,13 +629,12 @@ namespace Newtonsoft.Json.Linq
             {
                 return null;
             }
-            if (v.Value is DateTimeOffset)
+            if (v.Value is DateTimeOffset offset)
             {
-                return (DateTimeOffset?)v.Value;
+                return offset;
             }
 
-            string s = v.Value as string;
-            if (s != null)
+            if (v.Value is string s)
             {
                 return DateTimeOffset.Parse(s, CultureInfo.InvariantCulture);
             }
@@ -670,9 +662,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return (decimal?)(BigInteger)v.Value;
+                return (decimal?)integer;
             }
 #endif
 
@@ -698,9 +690,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return (double?)(BigInteger)v.Value;
+                return (double?)integer;
             }
 #endif
 
@@ -726,9 +718,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return (char?)(BigInteger)v.Value;
+                return (char?)integer;
             }
 #endif
 
@@ -749,9 +741,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return (int)(BigInteger)v.Value;
+                return (int)integer;
             }
 #endif
 
@@ -772,9 +764,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return (short)(BigInteger)v.Value;
+                return (short)integer;
             }
 #endif
 
@@ -796,9 +788,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return (ushort)(BigInteger)v.Value;
+                return (ushort)integer;
             }
 #endif
 
@@ -820,9 +812,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return (char)(BigInteger)v.Value;
+                return (char)integer;
             }
 #endif
 
@@ -843,9 +835,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return (byte)(BigInteger)v.Value;
+                return (byte)integer;
             }
 #endif
 
@@ -867,9 +859,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return (sbyte)(BigInteger)v.Value;
+                return (sbyte)integer;
             }
 #endif
 
@@ -895,9 +887,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return (int?)(BigInteger)v.Value;
+                return (int?)integer;
             }
 #endif
 
@@ -923,9 +915,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return (short?)(BigInteger)v.Value;
+                return (short?)integer;
             }
 #endif
 
@@ -952,9 +944,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return (ushort?)(BigInteger)v.Value;
+                return (ushort?)integer;
             }
 #endif
 
@@ -980,9 +972,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return (byte?)(BigInteger)v.Value;
+                return (byte?)integer;
             }
 #endif
 
@@ -1009,9 +1001,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return (sbyte?)(BigInteger)v.Value;
+                return (sbyte?)integer;
             }
 #endif
 
@@ -1032,9 +1024,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_DATE_TIME_OFFSET
-            if (v.Value is DateTimeOffset)
+            if (v.Value is DateTimeOffset offset)
             {
-                return ((DateTimeOffset)v.Value).DateTime;
+                return offset.DateTime;
             }
 #endif
 
@@ -1060,9 +1052,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return (long?)(BigInteger)v.Value;
+                return (long?)integer;
             }
 #endif
 
@@ -1088,9 +1080,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return (float?)(BigInteger)v.Value;
+                return (float?)integer;
             }
 #endif
 
@@ -1111,9 +1103,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return (decimal)(BigInteger)v.Value;
+                return (decimal)integer;
             }
 #endif
 
@@ -1140,9 +1132,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return (uint?)(BigInteger)v.Value;
+                return (uint?)integer;
             }
 #endif
 
@@ -1169,9 +1161,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return (ulong?)(BigInteger)v.Value;
+                return (ulong?)integer;
             }
 #endif
 
@@ -1192,9 +1184,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return (double)(BigInteger)v.Value;
+                return (double)integer;
             }
 #endif
 
@@ -1215,9 +1207,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return (float)(BigInteger)v.Value;
+                return (float)integer;
             }
 #endif
 
@@ -1247,16 +1239,15 @@ namespace Newtonsoft.Json.Linq
                 return null;
             }
 
-            byte[] bytes = v.Value as byte[];
-            if (bytes != null)
+            if (v.Value is byte[] bytes)
             {
                 return Convert.ToBase64String(bytes);
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return ((BigInteger)v.Value).ToString(CultureInfo.InvariantCulture);
+                return integer.ToString(CultureInfo.InvariantCulture);
             }
 #endif
 
@@ -1278,9 +1269,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return (uint)(BigInteger)v.Value;
+                return (uint)integer;
             }
 #endif
 
@@ -1302,9 +1293,9 @@ namespace Newtonsoft.Json.Linq
             }
 
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return (ulong)(BigInteger)v.Value;
+                return (ulong)integer;
             }
 #endif
 
@@ -1334,14 +1325,13 @@ namespace Newtonsoft.Json.Linq
                 return Convert.FromBase64String(Convert.ToString(v.Value, CultureInfo.InvariantCulture));
             }
 #if HAVE_BIG_INTEGER
-            if (v.Value is BigInteger)
+            if (v.Value is BigInteger integer)
             {
-                return ((BigInteger)v.Value).ToByteArray();
+                return integer.ToByteArray();
             }
 #endif
 
-            byte[] bytes = v.Value as byte[];
-            if (bytes != null)
+            if (v.Value is byte[] bytes)
             {
                 return bytes;
             }
@@ -1362,13 +1352,12 @@ namespace Newtonsoft.Json.Linq
                 throw new ArgumentException("Can not convert {0} to Guid.".FormatWith(CultureInfo.InvariantCulture, GetType(value)));
             }
 
-            byte[] bytes = v.Value as byte[];
-            if (bytes != null)
+            if (v.Value is byte[] bytes)
             {
                 return new Guid(bytes);
             }
 
-            return (v.Value is Guid) ? (Guid)v.Value : new Guid(Convert.ToString(v.Value, CultureInfo.InvariantCulture));
+            return (v.Value is Guid guid) ? guid : new Guid(Convert.ToString(v.Value, CultureInfo.InvariantCulture));
         }
 
         /// <summary>
@@ -1394,13 +1383,12 @@ namespace Newtonsoft.Json.Linq
                 return null;
             }
 
-            byte[] bytes = v.Value as byte[];
-            if (bytes != null)
+            if (v.Value is byte[] bytes)
             {
                 return new Guid(bytes);
             }
 
-            return (v.Value is Guid) ? (Guid)v.Value : new Guid(Convert.ToString(v.Value, CultureInfo.InvariantCulture));
+            return (v.Value is Guid guid) ? guid : new Guid(Convert.ToString(v.Value, CultureInfo.InvariantCulture));
         }
 
         /// <summary>
@@ -1416,7 +1404,7 @@ namespace Newtonsoft.Json.Linq
                 throw new ArgumentException("Can not convert {0} to TimeSpan.".FormatWith(CultureInfo.InvariantCulture, GetType(value)));
             }
 
-            return (v.Value is TimeSpan) ? (TimeSpan)v.Value : ConvertUtils.ParseTimeSpan(Convert.ToString(v.Value, CultureInfo.InvariantCulture));
+            return (v.Value is TimeSpan span) ? span : ConvertUtils.ParseTimeSpan(Convert.ToString(v.Value, CultureInfo.InvariantCulture));
         }
 
         /// <summary>
@@ -1442,7 +1430,7 @@ namespace Newtonsoft.Json.Linq
                 return null;
             }
 
-            return (v.Value is TimeSpan) ? (TimeSpan)v.Value : ConvertUtils.ParseTimeSpan(Convert.ToString(v.Value, CultureInfo.InvariantCulture));
+            return (v.Value is TimeSpan span) ? span : ConvertUtils.ParseTimeSpan(Convert.ToString(v.Value, CultureInfo.InvariantCulture));
         }
 
         /// <summary>
@@ -1468,7 +1456,7 @@ namespace Newtonsoft.Json.Linq
                 return null;
             }
 
-            return (v.Value is Uri) ? (Uri)v.Value : new Uri(Convert.ToString(v.Value, CultureInfo.InvariantCulture));
+            return (v.Value is Uri uri) ? uri : new Uri(Convert.ToString(v.Value, CultureInfo.InvariantCulture));
         }
 
 #if HAVE_BIG_INTEGER
@@ -1879,10 +1867,7 @@ namespace Newtonsoft.Json.Linq
 
         internal abstract int GetDeepHashCode();
 
-        IJEnumerable<JToken> IJEnumerable<JToken>.this[object key]
-        {
-            get { return this[key]; }
-        }
+        IJEnumerable<JToken> IJEnumerable<JToken>.this[object key] => this[key];
 
         /// <summary>
         /// Creates a <see cref="JsonReader"/> for this token.
@@ -1948,8 +1933,7 @@ namespace Newtonsoft.Json.Linq
         {
             if (JsonConvert.DefaultSettings == null)
             {
-                bool isEnum;
-                PrimitiveTypeCode typeCode = ConvertUtils.GetTypeCode(objectType, out isEnum);
+                PrimitiveTypeCode typeCode = ConvertUtils.GetTypeCode(objectType, out bool isEnum);
 
                 if (isEnum)
                 {
@@ -2428,8 +2412,7 @@ namespace Newtonsoft.Json.Linq
             }
             else
             {
-                object[] annotations = _annotations as object[];
-                if (annotations == null)
+                if (!(_annotations is object[] annotations))
                 {
                     _annotations = new[] { _annotations, annotation };
                 }
@@ -2459,8 +2442,7 @@ namespace Newtonsoft.Json.Linq
         {
             if (_annotations != null)
             {
-                object[] annotations = _annotations as object[];
-                if (annotations == null)
+                if (!(_annotations is object[] annotations))
                 {
                     return (_annotations as T);
                 }
@@ -2472,8 +2454,7 @@ namespace Newtonsoft.Json.Linq
                         break;
                     }
 
-                    T local = annotation as T;
-                    if (local != null)
+                    if (annotation is T local)
                     {
                         return local;
                     }
@@ -2497,8 +2478,7 @@ namespace Newtonsoft.Json.Linq
 
             if (_annotations != null)
             {
-                object[] annotations = _annotations as object[];
-                if (annotations == null)
+                if (!(_annotations is object[] annotations))
                 {
                     if (type.IsInstanceOfType(_annotations))
                     {
@@ -2538,8 +2518,7 @@ namespace Newtonsoft.Json.Linq
                 yield break;
             }
 
-            object[] annotations = _annotations as object[];
-            if (annotations != null)
+            if (_annotations is object[] annotations)
             {
                 for (int i = 0; i < annotations.Length; i++)
                 {
@@ -2549,8 +2528,7 @@ namespace Newtonsoft.Json.Linq
                         break;
                     }
 
-                    T casted = o as T;
-                    if (casted != null)
+                    if (o is T casted)
                     {
                         yield return casted;
                     }
@@ -2558,8 +2536,7 @@ namespace Newtonsoft.Json.Linq
                 yield break;
             }
 
-            T annotation = _annotations as T;
-            if (annotation == null)
+            if (!(_annotations is T annotation))
             {
                 yield break;
             }
@@ -2584,8 +2561,7 @@ namespace Newtonsoft.Json.Linq
                 yield break;
             }
 
-            object[] annotations = _annotations as object[];
-            if (annotations != null)
+            if (_annotations is object[] annotations)
             {
                 for (int i = 0; i < annotations.Length; i++)
                 {
@@ -2619,8 +2595,7 @@ namespace Newtonsoft.Json.Linq
         {
             if (_annotations != null)
             {
-                object[] annotations = _annotations as object[];
-                if (annotations == null)
+                if (!(_annotations is object[] annotations))
                 {
                     if (_annotations is T)
                     {
@@ -2675,8 +2650,7 @@ namespace Newtonsoft.Json.Linq
 
             if (_annotations != null)
             {
-                object[] annotations = _annotations as object[];
-                if (annotations == null)
+                if (!(_annotations is object[] annotations))
                 {
                     if (type.IsInstanceOfType(_annotations))
                     {
